@@ -1,13 +1,13 @@
 import { NonRetriableError } from "inngest";
-import { inngest } from "../client";
+import { inngest } from "../client.js";
 import Ticket from "../../models/ticket.js";
 import User from "../../models/user.js";
-import sendMail from "../../utils/mailer.js";
+import {sendMail} from "../../utils/mailer.js";
 import analyzeTicket from "../../utils/AiAgent.js";
-import ticket from "../../models/ticket.js";
+// import ticket from "../../models/ticket.js";
 
 export const onTicketCreated = inngest.createFunction(
-  { id: "on-ticket-creaetd", retries: 2 },
+  { id: "on-ticket-created", retries: 2 },
   { event: "ticket/created" },
 
   async ({ event, step }) => {
@@ -41,17 +41,17 @@ export const onTicketCreated = inngest.createFunction(
             priority: !["low", "medium", "high"].includes(aiResponse.priority)
               ? "medium"
               : aiResponse.priority,
-            helpfullNotes: aiResponse.helpfullNotes,
+            helpfulNotes: aiResponse.helpfulNotes,
             status: "IN_PROGESS",
-            realatedSkills: aiResponse.realatedSkills,
+            relatedSkills: aiResponse.relatedSkills,
           });
-          skills = aiResponse.realatedSkills;
+          skills = aiResponse.relatedSkills;
         }
         return skills;
       });
       //    here assigning the ticket to user if not available assigned to admin
       const moderator = await step.run("assign-moderator", async () => {
-        const user = await User.findOne({
+        let user = await User.findOne({
           role: "moderator",
           skills: {
             $elemMatch: {
@@ -78,7 +78,7 @@ export const onTicketCreated = inngest.createFunction(
         if (moderator) {
           const finalTicket = await Ticket.findById(ticket._id);
           await sendMail(
-            moderator.emial,
+            moderator.email,
             "Ticket Assigned",
             `A new Ticket is assigned to you ${finalTicket.title} .`
           );

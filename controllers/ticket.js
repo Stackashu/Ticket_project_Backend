@@ -59,7 +59,7 @@ export const getTickets = async (req, res) => {
   }
 };
 
-export const getTicket = async (req, res) => {
+export const getTicketDetail = async (req, res) => {
   try {
     const user = req.user;
     let ticket;

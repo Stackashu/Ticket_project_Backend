@@ -4,10 +4,10 @@ import User from "../models/user.js";
 import { inngest } from "../inngest/client.js";
 
 export const signup = async (req, res) => {
-  const { email, passowrd, skills = [] } = req.body;
+  const { email, password, skills = [] , role } = req.body;
 
   try {
-    if (!email || !passowrd) {
+    if (!email || !password || !role) {
       return res.status(400).json({ message: "Enter each field" });
     }
 
@@ -20,16 +20,17 @@ export const signup = async (req, res) => {
       });
     }
 
-    const hashPassword = await bcrypt.hash(passowrd, 10);
+    const hashPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
       email,
-      passowrd: hashPassword,
+      password: hashPassword,
       skills,
+      role
     });
 
     //Fire inngest events
-    await inngest.send({
+    inngest.send({
       name: "user/signup", // this is the trigger name of the event
       data: { email },
     });
@@ -46,9 +47,9 @@ export const signup = async (req, res) => {
 };
 
 export const login = async (req, res) => {
-  const { email, passowrd } = req.body;
+  const { email, password } = req.body;
   try {
-    if (!email || !passowrd) {
+    if (!email || !password) {
       res.status(400).json({ message: "Field must not be empty" });
     }
 
@@ -58,7 +59,7 @@ export const login = async (req, res) => {
       return res.status(401).json({ error: "User not found." });
     }
 
-    const isMatch = bcrypt.compare(passowrd, userFound.passowrd);
+    const isMatch = bcrypt.compare(password, userFound.password);
 
     if (!isMatch) {
       return res.status(401).json({ message: "Credentials are not correct." });

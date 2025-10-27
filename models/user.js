@@ -6,7 +6,7 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-    passowrd: { // Note: Kept as 'passowrd' to match controller usage, but should ideally be 'password'
+    password: { // Note: Kept as 'passowrd' to match controller usage, but should ideally be 'password'
         type: String,
         required: true
     },

@@ -1,4 +1,6 @@
 import { createAgent, gemini } from "@inngest/agent-kit";
+import dotenv from "dotenv";
+dotenv.config()
 
 const analyzeTicket = async (ticket) => {
   const supportAgent = createAgent({
@@ -55,11 +57,12 @@ const analyzeTicket = async (ticket) => {
      const raw =  response.output[0].context
 
      try {
-       const match = raw.match(/```json\s*[\s\S]*?)\s*```/i)
+       // Remove code block regex, expect raw JSON. Just assign null to match for clarity.
+       const match = null;
        const jsonString = match ? match[1] : raw.trim()
        return JSON.parse(jsonString)
      } catch (error) {
-        console.log("Failed to parse JSON  from AI response"+e.message)
+        console.log("Failed to parse JSON from AI response: " + error.message)
         return null  
      }
 };

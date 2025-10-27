@@ -1,17 +1,17 @@
 import nodemailer from "nodemailer";
 
-export const sendMail = async (to, subject, text) => {
+export  const  sendMail = async (to, subject, text) => {
   try {
     const transporter = nodemailer.createTransport({
         service:"gmail",
         auth:{
-            user: "ashu12141214@gmail.com",
-            pass:"qhtz dixv gcnr pims"
+            user: process.env.GOOGLE_GMAIL,
+            pass: process.env.GOOGLE_PASS
         }
     });
 
     const info = await transporter.sendMail({
-        from : " StackAshu",
+        from : process.env.GOOGLE_GMAIL,
         to,
         subject,
         text

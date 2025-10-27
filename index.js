@@ -20,9 +20,9 @@ app.use("/api/v1/tickets", ticketRoutes);
 
 // for the inngest function to run those automation 
 app.use("/api/inngest", serve({
-    client: inngest , 
-    functions: [onUserSignup , onTicketCreated]
-}), inngest);
+    client: inngest, 
+    functions: [onUserSignup, onTicketCreated]
+}));
 
 mongoose
   .connect(process.env.MONGO_URI)

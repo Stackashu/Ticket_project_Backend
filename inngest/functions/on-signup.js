@@ -1,7 +1,7 @@
 import { NonRetriableError } from "inngest";
-import { inngest } from "../client";
+import { inngest } from "../client.js";
 import User from "../../models/user.js";
-import sendMail from "../../utils/mailer.js";
+import { sendMail } from '../../utils/mailer.js'
 
 export const onUserSignup = inngest.createFunction(
   { id: "on-user-signup", retries: 2 },
@@ -9,15 +9,20 @@ export const onUserSignup = inngest.createFunction(
   async ({ event, step }) => {
     try {
       const { email } = event.data;
+      console.log("emial at user pipeline 1:" , email)
       // here below code will first check in database
       const user = await step.run("get-user-email", async () => {
         //step.run to run a check something or to run a piece of code before triggering something
         const userPresent = await User.findOne({ email });
+
         if (!userPresent) {
           throw new NonRetriableError("User no longer exists in our database."); // if nonretraiblErro occurs then it will don't move forwar and retires
         }
+        
         return userPresent;
       });
+
+      console.log("user is " , user)
 
       await step.run("send-welcome-email", async () => {
         const subject = `Welcome to the app`;
