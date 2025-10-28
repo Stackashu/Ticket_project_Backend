@@ -4,13 +4,14 @@ import Ticket from "../models/ticket.js";
 export const createTicket = async (req, res) => {
   try {
     const { title, description } = req.body;
+    
     if (!title || !description) {
       return res
         .status(400)
         .json({ message: "Title and description are required" });
     }
 
-    const newTicket = Ticket.create({
+    const newTicket = await Ticket.create({
       title,
       description,
       createdBy: req.user?._id.toString(),
@@ -19,7 +20,7 @@ export const createTicket = async (req, res) => {
     await inngest.send({
       name: "ticket/created",
       data: {
-        ticketId: (await newTicket)._id.toString(),
+        ticketId: newTicket._id.toString(),
         title,
         description,
         createdBy: req.user?._id.toString(),
@@ -42,7 +43,7 @@ export const getTickets = async (req, res) => {
     let tickets = [];
     if (user.role !== "admin") {
       // for fetching all tickets for the admin
-      tickets = Ticket.find({})
+      tickets = Ticket.find()
         .populate("assignedTo", ["emial", "_id"])
         .sort({ createdAt: -1 });
     } else {

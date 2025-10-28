@@ -80,7 +80,15 @@ export const onTicketCreated = inngest.createFunction(
           await sendMail(
             moderator.email,
             "Ticket Assigned",
-            `A new Ticket is assigned to you ${finalTicket.title} .`
+            `A new support ticket "${ticket.title}" has been assigned to you.
+
+Issue Summary: ${ticket.description}
+
+The following skills were identified as relevant for this ticket: ${Array.isArray(ticket.relatedSkills) && ticket.relatedSkills.length > 0 ? ticket.relatedSkills.join(", ") : "N/A"}.
+
+This job suits you best because of your expertise in these skills.
+
+Please review and address the ticket at your earliest convenience.`
           );
         }
       });

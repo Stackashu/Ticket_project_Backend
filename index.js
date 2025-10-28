@@ -8,11 +8,13 @@ import { serve } from "inngest/express";
 import { inngest } from "./inngest/client.js";
 import { onUserSignup } from "./inngest/functions/on-signup.js";
 import { onTicketCreated } from "./inngest/functions/on-ticket-creation.js";
+import morgan from "morgan";
 dotenv.config();
 
 const PORT = process.env.PORT || 5000;
 const app = express();
 app.use(cors());
+app.use(morgan("dev"));
 app.use(express.json());
 
 app.use("/api/v1/auth", userRoutes);
