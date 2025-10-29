@@ -13,6 +13,7 @@ export const onTicketCreated = inngest.createFunction(
   async ({ event, step }) => {
     try {
       const { ticketId } = event.data;
+      // console.log(ticketId,"ticket is ")
 
       //fetch ticket from db
       const ticket = await step.run("fetch-ticket", async () => {
@@ -23,6 +24,7 @@ export const onTicketCreated = inngest.createFunction(
         }
         return ticketFound;
       });
+      // console.log("got the ticket", ticket)
       //here updating the ticket status
       await step.run("update-ticket-status", async () => {
         await Ticket.findByIdAndUpdate(ticket._id, {
@@ -32,7 +34,8 @@ export const onTicketCreated = inngest.createFunction(
 
       //   here getting the response from ai about the ticket
       const aiResponse = await analyzeTicket(ticket);
-
+      
+      // console.log(aiResponse,"the ai Response is")
       // for fetching skills needed for the ticket or problem
       const relatedSkills = await step.run("ai-processing", async () => {
         let skills = [];
@@ -80,15 +83,19 @@ export const onTicketCreated = inngest.createFunction(
           await sendMail(
             moderator.email,
             "Ticket Assigned",
-            `A new support ticket "${ticket.title}" has been assigned to you.
+            `A new ticket "${ticket.title}" has been assigned to you.
 
 Issue Summary: ${ticket.description}
 
-The following skills were identified as relevant for this ticket: ${Array.isArray(ticket.relatedSkills) && ticket.relatedSkills.length > 0 ? ticket.relatedSkills.join(", ") : "N/A"}.
+The following skills were identified as relevant for this ticket: ${Array.isArray(finalTicket.relatedSkills) && finalTicket.relatedSkills.length > 0 ? finalTicket.relatedSkills.join(", ") : "N/A"}.
+
+Helpfull notes for you for your ease${ticket.helpfulNotes}.
 
 This job suits you best because of your expertise in these skills.
 
-Please review and address the ticket at your earliest convenience.`
+Please review and address the ticket at your earliest convenience.
+
+Regards Hiredevs.`
           );
         }
       });

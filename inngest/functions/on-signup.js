@@ -28,7 +28,7 @@ export const onUserSignup = inngest.createFunction(
         const subject = `Welcome to the App`;
         const message = `Hello ${user.email},
 
-Welcome to our platform!
+Welcome to HireDevs!
 
 Thank you for signing up. We are excited to have you as part of our community.
 If you have any questions or need assistance, please don't hesitate to reach out.

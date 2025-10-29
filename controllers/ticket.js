@@ -16,8 +16,9 @@ export const createTicket = async (req, res) => {
       description,
       createdBy: req.user?._id.toString(),
     });
-
-    await inngest.send({
+    
+     //here the pipline will start in background
+     inngest.send({
       name: "ticket/created",
       data: {
         ticketId: newTicket._id.toString(),
@@ -40,22 +41,25 @@ export const createTicket = async (req, res) => {
 export const getTickets = async (req, res) => {
   try {
     const user = req.user;
+    console.log("user is ", user);
     let tickets = [];
-    if (user.role !== "admin") {
-      // for fetching all tickets for the admin
-      tickets = Ticket.find()
-        .populate("assignedTo", ["emial", "_id"])
+
+    if (user.role === "admin") {
+      // Admin: fetch all tickets
+      tickets = await Ticket.find()
+        .populate("assignedTo", ["email", "_id"])
         .sort({ createdAt: -1 });
     } else {
-      // for the user only
-      tickets = await Ticket.find({ createdBY: user._id })
+      // Non-admin: fetch only user's tickets
+      tickets = await Ticket.find({ createdBy: user._id })
         .select("title description status createdAt")
         .sort({ createdAt: -1 });
     }
 
+    console.log("tickets are", tickets);
     return res.status(200).json({ tickets });
   } catch (error) {
-    console.error("Error in fetcching  tickets", error.message);
+    console.error("Error fetching tickets", error.message);
     return res.status(500).json({ message: "Internal server error." });
   }
 };

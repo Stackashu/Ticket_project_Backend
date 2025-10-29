@@ -1,12 +1,12 @@
 import { createAgent, gemini } from "@inngest/agent-kit";
 import dotenv from "dotenv";
-dotenv.config()
+dotenv.config();
 
 const analyzeTicket = async (ticket) => {
   const supportAgent = createAgent({
     model: gemini({
-      model: "gemini-1.5-flash-8b",
-      apiKey: process.env.GEMINI_API_KEY, 
+      model: "gemini-2.5-pro",
+      apiKey: process.env.GEMINI_API_KEY,
     }),
     name: "AI Ticket Triage Assistant",
     system: `
@@ -53,18 +53,18 @@ const analyzeTicket = async (ticket) => {
       - Title: ${ticket.title}
       - Description: ${ticket.description}`);
 
-
-     const raw =  response.output[0].context
-
-     try {
-       // Remove code block regex, expect raw JSON. Just assign null to match for clarity.
-       const match = null;
-       const jsonString = match ? match[1] : raw.trim()
-       return JSON.parse(jsonString)
-     } catch (error) {
-        console.log("Failed to parse JSON from AI response: " + error.message)
-        return null  
-     }
+  // console.log("response is ", response);
+  const raw = response.output[0].content;
+  // console.log("raw message is ", raw);
+  try {
+    // Try to extract only the outermost {...} JSON block (ignore any markdown/code fence or extra text)
+    const curlyMatch = raw.match(/\{[\s\S]*\}/);
+    const jsonString = curlyMatch ? curlyMatch[0] : raw.trim();
+    return JSON.parse(jsonString);
+  } catch (error) {
+    console.log("Failed to parse JSON from AI response: " + error.message);
+    return null;
+  }
 };
 
 export default analyzeTicket;
