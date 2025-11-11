@@ -129,10 +129,11 @@ export const getUsers = async (req, res) => {
     if (req.user?.role !== "admin") {
       return res.status(403).json({ error: "Forbidden" });
     }
-
     const users = await User.find().select("-password");
+    
+    const onlyDevelopers =  users.filter(u => u.role === "moderator")
 
-    return res.json({ users });
+    return res.status(200).json({ users:onlyDevelopers });
   } catch (error) {
     res
       .status(500)
