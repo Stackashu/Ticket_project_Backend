@@ -2,7 +2,7 @@ import { NonRetriableError } from "inngest";
 import { inngest } from "../client.js";
 import Ticket from "../../models/ticket.js";
 import User from "../../models/user.js";
-import {sendMail} from "../../utils/mailer.js";
+import { sendMail } from "../../utils/mailer.js";
 import analyzeTicket from "../../utils/AiAgent.js";
 // import ticket from "../../models/ticket.js";
 
@@ -12,7 +12,7 @@ export const onTicketCreated = inngest.createFunction(
 
   async ({ event, step }) => {
     try {
-      const { ticketId } = event.data;
+      const { ticketId, createdBy } = event.data;
       // console.log(ticketId,"ticket is ")
 
       //fetch ticket from db
@@ -34,7 +34,7 @@ export const onTicketCreated = inngest.createFunction(
 
       //   here getting the response from ai about the ticket
       const aiResponse = await analyzeTicket(ticket);
-      
+
       // console.log(aiResponse,"the ai Response is")
       // for fetching skills needed for the ticket or problem
       const relatedSkills = await step.run("ai-processing", async () => {
@@ -76,7 +76,7 @@ export const onTicketCreated = inngest.createFunction(
 
         return user;
       });
-      //   here sending the email to the user
+      //   here sending the email to the Developer
       await step.run("send-email-notification", async () => {
         if (moderator) {
           const finalTicket = await Ticket.findById(ticket._id);
@@ -87,7 +87,12 @@ export const onTicketCreated = inngest.createFunction(
 
 Issue Summary: ${ticket.description}
 
-The following skills were identified as relevant for this ticket: ${Array.isArray(finalTicket.relatedSkills) && finalTicket.relatedSkills.length > 0 ? finalTicket.relatedSkills.join(", ") : "N/A"}.
+The following skills were identified as relevant for this ticket: ${
+              Array.isArray(finalTicket.relatedSkills) &&
+              finalTicket.relatedSkills.length > 0
+                ? finalTicket.relatedSkills.join(", ")
+                : "N/A"
+            }.
 
 Helpfull notes for you for your ease${ticket.helpfulNotes}.
 
@@ -100,6 +105,34 @@ Regards Hiredevs.`
         }
       });
 
+      const creator = await step.run("get-creator", async () => {
+        const creatorFound = await User.findById(createdBy);
+        if (!creatorFound) {
+          throw new NonRetriableError("Creator not found.");
+        }
+        return creatorFound;
+      });
+
+      await step.run("send-email-notification-to-creator", async () => {
+        if (creator) {
+          await sendMail(
+            creator.email,
+            "Ticket Created",
+            `A new ticket "${ticket.title}" has been created by you.
+            Issue Summary: ${ticket.description}
+            The following skills were identified as relevant for this ticket: ${
+              Array.isArray(finalTicket.relatedSkills) &&
+              finalTicket.relatedSkills.length > 0
+                ? finalTicket.relatedSkills.join(", ")
+                : "N/A"
+            }.
+            Helpfull notes for you for your ease${ticket.helpfulNotes}.
+            This job suits you best because of your expertise in these skills.
+            Please review and address the ticket at your earliest convenience.
+            Regards Hiredevs.`
+          );
+        }
+      });
       return { success: true };
     } catch (error) {
       console.log("Error running the steps" + error.message);
