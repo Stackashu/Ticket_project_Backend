@@ -6,7 +6,7 @@ import userRoutes from "./routes/user.js";
 import ticketRoutes from "./routes/ticket.js";
 import { serve ,  } from "inngest/express";
 import { inngest } from "./inngest/client.js";
-import { onUserSignup } from "./inngest/functions/on-signup.js";
+import { onUserSignup } from "./inngest/functions/on-signup.js"; 
 import { onTicketCreated } from "./inngest/functions/on-ticket-creation.js";
 import morgan from "morgan";
 dotenv.config();
@@ -26,7 +26,7 @@ app.use("/api/inngest", serve({
     functions: [onUserSignup, onTicketCreated]
 }));
 
-// app.use("/api/e", event({ client: inngest }));
+// app.use("/api/e", event({ client: inngest })); // this is for the event handling but not required for now
 
 app.get("/",(req,res)=>{
   res.send("Hello World");
