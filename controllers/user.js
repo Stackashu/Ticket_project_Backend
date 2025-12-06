@@ -29,7 +29,7 @@ export const signup = async (req, res) => {
     });
 
     //Fire inngest events
-     inngest.send("user/signup", {
+    await inngest.send("user/signup", {
       email,
       userId: user._id,
     });
