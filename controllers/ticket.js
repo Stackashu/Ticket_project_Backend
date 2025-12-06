@@ -18,14 +18,11 @@ export const createTicket = async (req, res) => {
     });
     
      //here the pipline will start in background
-     inngest.send({
-      name: "ticket/created",
-      data: {
-        ticketId: newTicket._id.toString(),
-        title,
-        description,
-        createdBy: req.user?._id.toString(),
-      },
+      inngest.send("ticket/created", {
+      ticketId: newTicket._id.toString(),
+      title,
+      description,
+      createdBy: req.user?._id.toString(),
     });
 
     return res.status(201).json({

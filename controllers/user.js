@@ -29,9 +29,9 @@ export const signup = async (req, res) => {
     });
 
     //Fire inngest events
-    inngest.send({
-      name: "user/signup", // this is the trigger name of the event
-      data: { email },
+     inngest.send("user/signup", {
+      email,
+      userId: user._id,
     });
 
     user = await User.findById(user._id).select("-password");
