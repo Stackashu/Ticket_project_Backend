@@ -26,6 +26,9 @@ app.use("/api/inngest", serve({
     functions: [onUserSignup, onTicketCreated]
 }));
 
+app.get("/",(req,res)=>{
+  res.send("Hello World");
+})
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
