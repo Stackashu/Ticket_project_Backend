@@ -4,7 +4,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import userRoutes from "./routes/user.js";
 import ticketRoutes from "./routes/ticket.js";
-import { serve , eventHandler } from "inngest/express";
+import { serve } from "inngest/express";
 import { inngest } from "./inngest/client.js";
 import { onUserSignup } from "./inngest/functions/on-signup.js";
 import { onTicketCreated } from "./inngest/functions/on-ticket-creation.js";
@@ -25,6 +25,8 @@ app.use("/api/inngest", serve({
     client: inngest, 
     functions: [onUserSignup, onTicketCreated]
 }));
+
+// app.use("/api/e", event({ client: inngest }));
 
 app.get("/",(req,res)=>{
   res.send("Hello World");

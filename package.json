@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon index.js",
-    "start":"node index.js",
+    "start": "node index.js",
     "inngest-dev": "npx inngest-cli@latest dev"
   },
   "keywords": [],
@@ -21,7 +21,7 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
-    "inngest": "^3.44.3",
+    "inngest": "^3.47.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.19.2",
     "morgan": "^1.10.1",
